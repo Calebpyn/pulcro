@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pulcro</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" class="logo" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#lg)"/><path d="M9 21.5c3-1 5.5-3.6 7-7.5l1.8-4.6a1.3 1.3 0 0 1 2.4.9l-1.6 4.8c-1 3.2-.7 5.2 1.4 6.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="22.5" cy="9" r="1.4" fill="#fff"/><circle cx="25" cy="13" r=".9" fill="#fff"/></svg>
+      <span>Pulcro</span>
+    </div>
+    <nav>
+      <button data-view="overview" class="active"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0zm9-5v5l3 2"/></svg>Resumen</button>
+      <button data-view="clean"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 20l1.5-7h7L17 20M9.5 13 12 4l2.5 9"/></svg>Limpieza<span class="badge" id="nav-clean-badge" hidden></span></button>
+      <button data-view="space"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/></svg>Espacio</button>
+      <button data-view="history"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4M12 8v4l3 2"/></svg>Historial</button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="channel" id="channel"><span class="dot"></span><span id="channel-label">Conectando…</span></div>
+      <div class="machine" id="machine"></div>
+    </div>
+  </aside>
+
+  <main>
+    <!-- RESUMEN -->
+    <section class="view active" id="view-overview">
+      <header class="view-head">
+        <div><h1>Resumen</h1><p class="muted" id="overview-sub">Revisando tu Mac…</p></div>
+        <button class="btn primary" id="btn-scan-overview">Escanear ahora</button>
+      </header>
+      <div class="overview-grid">
+        <div class="card disk-card">
+          <svg viewBox="0 0 120 120" class="ring"><circle cx="60" cy="60" r="50" class="ring-track"/><circle cx="60" cy="60" r="50" class="ring-fill" id="ring-fill"/></svg>
+          <div class="ring-label"><strong id="disk-free">—</strong><span>libres</span></div>
+          <div class="disk-meta">
+            <h3>Almacenamiento</h3>
+            <p id="disk-detail" class="muted">—</p>
+            <p id="disk-recoverable" class="recoverable"></p>
+          </div>
+        </div>
+        <div class="stats" id="stats"></div>
+      </div>
+      <h2 class="section-title">Recomendaciones</h2>
+      <div id="recs" class="recs"></div>
+    </section>
+
+    <!-- LIMPIEZA -->
+    <section class="view" id="view-clean">
+      <header class="view-head">
+        <div><h1>Limpieza</h1><p class="muted" id="clean-sub">Aún no hay escaneo.</p></div>
+        <div class="head-actions">
+          <button class="btn" id="btn-select-safe">Seleccionar todo lo seguro</button>
+          <button class="btn primary" id="btn-scan">Escanear</button>
+        </div>
+      </header>
+      <div id="clean-list" class="clean-list"></div>
+      <div class="actionbar" id="actionbar" hidden>
+        <span id="selection-label"></span>
+        <div><button class="btn ghost" id="btn-clear-sel">Quitar selección</button><button class="btn danger" id="btn-clean">Limpiar</button></div>
+      </div>
+    </section>
+
+    <!-- ESPACIO -->
+    <section class="view" id="view-space">
+      <header class="view-head">
+        <div><h1>Espacio</h1><p class="muted">Lo que más pesa en tu Mac. Esto no se limpia solo: revísalo tú.</p></div>
+        <button class="btn" id="btn-empty-trash">Vaciar Papelera</button>
+      </header>
+      <div class="space-grid" id="space-grid"></div>
+    </section>
+
+    <!-- HISTORIAL -->
+    <section class="view" id="view-history">
+      <header class="view-head"><div><h1>Historial</h1><p class="muted">Lo que hiciste tú y lo que hizo Claude.</p></div></header>
+      <div id="history" class="history"></div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <h2 id="modal-title"></h2>
+      <div id="modal-body"></div>
+      <div class="modal-actions"><button class="btn ghost" id="modal-cancel">Cancelar</button><button class="btn danger" id="modal-ok">Confirmar</button></div>
+    </div>
+  </div>
+  <div class="toasts" id="toasts"></div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

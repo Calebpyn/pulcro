@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pulcro · Menú</title>
+  <style>
+    :root {
+      --bg-1: #2b1055;
+      --bg-2: #1a1446;
+      --bg-3: #0f2a4a;
+      --card: rgba(255, 255, 255, .075);
+      --card-hover: rgba(255, 255, 255, .11);
+      --line: rgba(255, 255, 255, .1);
+      --text: #fff;
+      --muted: rgba(255, 255, 255, .62);
+      --faint: rgba(255, 255, 255, .38);
+      --a1: #2ee6c5;
+      --a2: #4aa8ff;
+      --a3: #b86bff;
+      --ok: #38e39a;
+      --warn: #ffc24b;
+      --bad: #ff5f7a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      width: 360px; color: var(--text); user-select: none; cursor: default;
+      font: 13px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; -webkit-font-smoothing: antialiased;
+      background:
+        radial-gradient(120% 70% at 100% 0%, rgba(184, 107, 255, .45), transparent 60%),
+        radial-gradient(90% 60% at 0% 100%, rgba(46, 230, 197, .22), transparent 60%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+    }
+    .wrap { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* header */
+    header { display: flex; align-items: center; gap: 10px; padding: 2px 2px 4px; }
+    header .logo { width: 30px; height: 30px; }
+    header .t { flex: 1; min-width: 0; }
+    header h1 { font-size: 15px; margin: 0; font-weight: 700; letter-spacing: -.01em; }
+    .status { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .status i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+    .status.warn i { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+    .status.bad i { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
+    .hbtn { width: 28px; height: 28px; border-radius: 8px; border: 0; background: var(--card); color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+    .hbtn:hover { background: var(--card-hover); color: #fff; }
+    .hbtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; backdrop-filter: blur(20px); }
+    .label { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); display: flex; align-items: center; gap: 6px; }
+    .label svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* alerta */
+    .alert { display: flex; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 12px; background: rgba(255, 95, 122, .14); border: 1px solid rgba(255, 95, 122, .3); font-size: 12px; }
+    .alert.warn { background: rgba(255, 194, 75, .12); border-color: rgba(255, 194, 75, .3); }
+    .alert b { display: block; font-size: 12.5px; }
+    .alert span { color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .alert .ico { font-size: 17px; }
+
+    /* almacenamiento */
+    .storage { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; padding: 14px; }
+    .ring { position: relative; width: 96px; height: 96px; }
+    .ring svg { width: 96px; height: 96px; transform: rotate(-90deg); }
+    .ring .track { fill: none; stroke: rgba(255,255,255,.1); stroke-width: 9; }
+    .ring .fill { fill: none; stroke: url(#grad); stroke-width: 9; stroke-linecap: round; stroke-dasharray: 264; stroke-dashoffset: 264; transition: stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1); }
+    .ring .c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .ring .c b { font-size: 19px; letter-spacing: -.02em; }
+    .ring .c span { font-size: 10px; color: var(--muted); }
+    .storage h2 { margin: 0 0 2px; font-size: 14px; }
+    .storage p { margin: 0; color: var(--muted); font-size: 12px; }
+    .storage .rec { color: var(--a1); font-weight: 600; margin: 6px 0 8px; font-size: 12.5px; }
+
+    .btn {
+      font: inherit; font-weight: 700; font-size: 12.5px; color: #fff; border: 0; cursor: pointer;
+      padding: 8px 14px; border-radius: 99px; width: 100%;
+      background: linear-gradient(90deg, var(--a1), var(--a2) 55%, var(--a3));
+      box-shadow: 0 4px 18px rgba(74, 168, 255, .35); transition: filter .15s, transform .06s;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { filter: grayscale(.7) brightness(.8); cursor: default; box-shadow: none; }
+    .btn.confirm { background: linear-gradient(90deg, #ff7a59, var(--bad)); box-shadow: 0 4px 18px rgba(255, 95, 122, .4); }
+
+    /* grid de métricas */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric { display: flex; flex-direction: column; gap: 6px; min-height: 104px; }
+    .metric .big { font-size: 22px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+    .metric .big small { font-size: 12px; color: var(--muted); font-weight: 500; margin-left: 2px; }
+    .metric .sub { font-size: 11.5px; color: var(--muted); margin-top: auto; }
+    .bar { height: 5px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--a1), var(--a2)); transition: width .6s ease; }
+    .bar.warn i { background: linear-gradient(90deg, var(--warn), #ff9a4b); }
+    .bar.bad i { background: linear-gradient(90deg, #ff9a4b, var(--bad)); }
+    .spark { width: 100%; height: 26px; }
+    .spark polyline { fill: none; stroke: var(--a2); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+    .spark polygon { fill: url(#sparkfill); }
+    .batt { display: flex; align-items: center; gap: 8px; }
+    .batt-ico { width: 30px; height: 15px; border: 1.6px solid rgba(255,255,255,.7); border-radius: 4px; padding: 1.5px; position: relative; }
+    .batt-ico::after { content: ""; position: absolute; right: -4px; top: 4px; width: 2px; height: 5px; border-radius: 0 2px 2px 0; background: rgba(255,255,255,.7); }
+    .batt-ico i { display: block; height: 100%; border-radius: 2px; background: var(--ok); }
+
+    /* apps */
+    .apps { display: flex; flex-direction: column; gap: 7px; margin-top: 8px; }
+    .app { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; font-size: 12.5px; }
+    .app .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .app .v { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .app .bar { grid-column: 1 / -1; height: 3px; }
+
+    /* claude */
+    .claude { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .claude .dot { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: rgba(255, 145, 77, .18); color: #ffae73; font-size: 14px; flex: none; }
+    .claude span { color: var(--muted); display: block; }
+
+    /* footer */
+    .actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .act { font: inherit; font-size: 11.5px; font-weight: 600; color: #fff; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 9px 4px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .act:hover { background: var(--card-hover); }
+    .act svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+    .act.confirm { background: rgba(255, 95, 122, .25); border-color: rgba(255, 95, 122, .5); }
+    .act:disabled { opacity: .55; cursor: default; }
+    .foot { display: flex; justify-content: space-between; font-size: 11px; color: var(--faint); padding: 0 2px; }
+    .foot button { font: inherit; color: var(--faint); background: none; border: 0; cursor: pointer; padding: 0; }
+    .foot button:hover { color: #fff; }
+    .spin { width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: s .7s linear infinite; vertical-align: -2px; margin-right: 5px; }
+    @keyframes s { to { transform: rotate(360deg); } }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ee6c5"/><stop offset=".55" stop-color="#4aa8ff"/><stop offset="1" stop-color="#b86bff"/></linearGradient>
+      <linearGradient id="sparkfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4aa8ff" stop-opacity=".35"/><stop offset="1" stop-color="#4aa8ff" stop-opacity="0"/></linearGradient>
+    </defs>
+  </svg>
+  <div class="wrap" id="wrap">
+    <header>
+      <svg viewBox="0 0 32 32" class="logo"><rect width="32" height="32" rx="8" fill="url(#grad)"/><path d="M9 21.5c3-1 5.5-3.6 7-7.5l1.8-4.6a1.3 1.3 0 0 1 2.4.9l-1.6 4.8c-1 3.2-.7 5.2 1.4 6.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="22.5" cy="9" r="1.4" fill="#fff"/><circle cx="25" cy="13" r=".9" fill="#fff"/></svg>
+      <div class="t"><h1>Pulcro</h1><div class="status" id="status"><i></i><span id="status-text">Revisando tu Mac…</span></div></div>
+      <button class="hbtn" id="open-app" title="Abrir Pulcro"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
+    </header>
+
+    <div class="alert" id="alert" hidden><span class="ico">⚠️</span><div><b id="alert-title"></b><span id="alert-text"></span></div></div>
+
+    <div class="card storage">
+      <div class="ring">
+        <svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="42" class="track"/><circle cx="48" cy="48" r="42" class="fill" id="ring"/></svg>
+        <div class="c"><b id="free">—</b><span>libres</span></div>
+      </div>
+      <div>
+        <h2>Macintosh HD</h2>
+        <p id="disk-sub">—</p>
+        <p class="rec" id="recoverable">—</p>
+        <button class="btn" id="clean" disabled>Limpiar</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card metric">
+        <span class="label"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="10" rx="2"/><path d="M8 7V5m4 2V5m4 2V5M8 19v-2m4 2v-2m4 2v-2"/></svg>Memoria</span>
+        <span class="big" id="mem">—</span>
+        <div class="bar" id="mem-bar"><i></i></div>
+        <span class="sub" id="mem-sub">—</span>
+      </div>
+      <div class="card metric">
+        <span class="label"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/></svg>CPU</span>
+        <span class="big" id="cpu">—</span>
+        <svg class="spark" id="spark" viewBox="0 0 100 26" preserveAspectRatio="none"><polygon points=""/><polyline points=""/></svg>
+        <span class="sub" id="cpu-sub">—</span>
+      </div>
+      <div class="card metric">
+        <span class="label"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6z"/></svg>Batería</span>
+        <div class="batt"><span class="big" id="batt">—</span><span class="batt-ico"><i id="batt-fill"></i></span></div>
+        <span class="sub" id="batt-sub">—</span>
+      </div>
+      <div class="card metric">
+        <span class="label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Encendida</span>
+        <span class="big" id="uptime">—</span>
+        <span class="sub" id="uptime-sub">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="label"><svg viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></svg>Lo que más memoria usa</span>
+      <div class="apps" id="apps"></div>
+    </div>
+
+    <div class="card claude" id="claude" hidden>
+      <span class="dot">✳︎</span>
+      <div><b id="claude-title"></b><span id="claude-sub"></span></div>
+    </div>
+
+    <div class="actions">
+      <button class="act" id="scan"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Escanear</span></button>
+      <button class="act" id="trash"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span>Vaciar Papelera</span></button>
+    </div>
+    <div class="foot"><span id="updated">—</span><button id="quit">Salir de Pulcro</button></div>
+  </div>
+  <script src="/menu.js"></script>
+</body>
+</html>
