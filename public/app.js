@@ -216,7 +216,7 @@ $('#btn-select-safe').addEventListener('click', () => {
 $('#btn-clear-sel').addEventListener('click', () => { state.selected.clear(); renderScan(); });
 $('#btn-clean').addEventListener('click', () => cleanFlow(selectedItems()));
 
-async function cleanFlow(items, source = 'usuario') {
+async function cleanFlow(items) {
   if (!items.length) return;
   const safe = items.filter((i) => i.risk === 'safe');
   const review = items.filter((i) => i.risk === 'review');
@@ -225,8 +225,7 @@ async function cleanFlow(items, source = 'usuario') {
   const ok = await confirmModal({
     title: `Limpiar ${items_(items.length)} (${fb(total)})`,
     html: `${safe.length ? `<p class="note"><strong>Se borran</strong> (se regeneran solos):</p>${list(safe)}` : ''}
-           ${review.length ? `<p class="note"><strong>Van a la Papelera</strong> (puedes recuperarlos):</p>${list(review)}` : ''}
-           ${source === 'claude' ? '<p class="note">Sugerido por Claude. Pulcro vuelve a validar cada elemento antes de tocarlo.</p>' : ''}`,
+           ${review.length ? `<p class="note"><strong>Van a la Papelera</strong> (puedes recuperarlos):</p>${list(review)}` : ''}`,
     ok: 'Limpiar',
   });
   if (!ok) return;
@@ -299,9 +298,8 @@ $('#btn-empty-trash').addEventListener('click', async () => {
 async function loadHistory() {
   const h = await api('/api/history').catch(() => []);
   const el = $('#history');
-  if (!h.length) { el.innerHTML = '<div class="empty card"><h3>Sin actividad</h3><p>Aquí verás cada escaneo y limpieza, tuya o de Claude.</p></div>'; return; }
+  if (!h.length) { el.innerHTML = '<div class="empty card"><h3>Sin actividad</h3><p>Aquí verás cada escaneo y limpieza.</p></div>'; return; }
   el.innerHTML = h.map((e) => {
-    const who = e.actor === 'claude' ? '<span class="actor claude">Claude</span>' : '<span class="actor">Tú</span>';
     const when = new Date(e.at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
     let what = '', detail = '', amount = '';
     if (e.type === 'clean') {
@@ -310,29 +308,23 @@ async function loadHistory() {
       amount = fb(e.freedBytes || e.estimatedBytes);
     } else if (e.type === 'empty-trash') { what = 'Vació la Papelera'; amount = fb(e.freedBytes); }
     else if (e.type === 'scan') { what = 'Escaneó la Mac'; detail = `${fb(e.safeBytes)} recuperables sin riesgo`; }
-    return `<div class="card event">${who}<div class="what"><strong>${esc(what)}</strong><p>${esc(when)}${detail ? ' · ' + esc(detail) : ''}</p></div><span class="amount">${amount}</span></div>`;
+    return `<div class="card event"><div class="what"><strong>${esc(what)}</strong><p>${esc(when)}${detail ? ' · ' + esc(detail) : ''}</p></div><span class="amount">${amount}</span></div>`;
   }).join('');
 }
 
-// ---------- canal en vivo con Claude ----------
+// ---------- eventos en vivo ----------
 function connectEvents() {
   const es = new EventSource('/api/events');
-  es.onopen = () => { $('#channel').classList.add('on'); $('#channel-label').textContent = 'Canal con Claude activo'; };
+  es.onopen = () => { $('#channel').classList.add('on'); $('#channel-label').textContent = 'Actualización en vivo'; };
   es.onerror = () => { $('#channel').classList.remove('on'); $('#channel-label').textContent = 'Reconectando…'; };
   es.onmessage = async (msg) => {
     const e = JSON.parse(msg.data);
     if ($('#view-history').classList.contains('active')) loadHistory();
-    if (e.actor !== 'claude') return;
-    if (e.type === 'clean') {
-      toast(`Claude limpió ${items_(e.items.length)}`, `${fb(e.freedBytes || e.estimatedBytes)} liberados`, 'claude');
-      loadHealth();
-      state.scan = await api('/api/scan/last');
-      renderScan(); renderSpace(); renderRecoverable();
-    } else if (e.type === 'scan') {
-      toast('Claude escaneó tu Mac', `${fb(e.safeBytes)} recuperables sin riesgo`, 'claude');
+    if (e.type === 'clean' || e.type === 'scan') {
       state.scan = await api('/api/scan/last');
       renderScan(); renderSpace(); renderRecoverable();
     }
+    if (e.type !== 'scan') loadHealth();
   };
 }
 

@@ -218,7 +218,7 @@ export async function runScan({ onProgress } = {}) {
   return scan;
 }
 
-// Quita del último escaneo lo que ya se limpió, para que la app y Claude vean lo mismo.
+// Quita del último escaneo lo que ya se limpió, para que todas las vistas muestren lo mismo.
 export async function pruneLastScan(ids) {
   const scan = await lastScan();
   if (!scan?.items) return;

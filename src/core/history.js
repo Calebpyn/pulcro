@@ -1,5 +1,4 @@
-// Bitácora compartida entre la app y el servidor MCP. Es el "canal" por el que la
-// app se entera en tiempo real de lo que hizo Claude (y viceversa).
+// Bitácora de escaneos y limpiezas. El servidor la vigila y avisa a la interfaz en vivo.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { DATA_DIR, ensureDataDir } from './util.js';

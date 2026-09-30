@@ -10,14 +10,6 @@ function fb(bytes) {
   while (Math.abs(n) >= 1000 && i < u.length - 1) { n /= 1000; i++; }
   return `${n.toFixed(n >= 100 || i === 0 ? 0 : 1)} ${u[i]}`;
 }
-function ago(iso) {
-  const m = Math.round((Date.now() - Date.parse(iso)) / 60000);
-  if (m < 1) return 'justo ahora';
-  if (m < 60) return `hace ${m} min`;
-  const h = Math.round(m / 60);
-  if (h < 24) return `hace ${h} h`;
-  return `hace ${Math.round(h / 24)} d`;
-}
 async function api(path, method = 'GET', body) {
   const res = await fetch(path, { method, headers: method === 'GET' ? {} : { 'X-Pulcro': '1', 'Content-Type': 'application/json' }, body });
   if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? `Error ${res.status}`);
@@ -90,17 +82,6 @@ async function loadScan() {
   }
 }
 
-async function loadClaude() {
-  const h = await api('/api/history');
-  const e = h.find((x) => x.actor === 'claude');
-  $('claude').hidden = !e;
-  if (!e) return;
-  const what = e.type === 'clean' ? `Claude limpió ${e.items.length} ${e.items.length === 1 ? 'elemento' : 'elementos'}`
-    : e.type === 'scan' ? 'Claude escaneó tu Mac' : 'Claude vació la Papelera';
-  $('claude-title').textContent = what;
-  $('claude-sub').textContent = `${ago(e.at)}${e.freedBytes ? ` · ${fb(e.freedBytes)} liberados` : ''}`;
-}
-
 async function loadLive() {
   const l = await api('/api/live');
   const m = l.memory;
@@ -148,7 +129,7 @@ function reportHeight() {
 }
 
 async function refreshAll() {
-  await Promise.allSettled([loadHealth(), loadScan(), loadClaude(), loadLive()]);
+  await Promise.allSettled([loadHealth(), loadScan(), loadLive()]);
   reportHeight();
 }
 

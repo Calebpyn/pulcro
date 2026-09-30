@@ -22,7 +22,7 @@ async function moveToTrash(p) {
  * Limpia los elementos indicados por ID. Cada ID se valida de nuevo contra las
  * reglas (rules.js) antes de tocar nada.
  * @param {string[]} ids
- * @param {{actor?: 'usuario'|'claude', dryRun?: boolean}} opts
+ * @param {{actor?: string, dryRun?: boolean}} opts
  */
 export async function cleanItems(ids, { actor = 'usuario', dryRun = false } = {}) {
   const scan = await lastScan();

@@ -1,20 +1,15 @@
 {
   "name": "pulcro",
-  "version": "0.1.0",
-  "description": "Limpiador y monitor de salud para macOS, con canal MCP para Claude",
+  "version": "0.1.1",
+  "description": "Limpiador y monitor de salud para macOS, estilo CleanMyMac",
   "type": "module",
   "private": true,
   "scripts": {
     "start": "node src/server.js",
-    "mcp": "node src/mcp.js",
     "build:app": "bash scripts/build-app.sh",
-    "register": "bash scripts/register-claude.sh",
     "build:dmg": "bash scripts/build-dmg.sh"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.17.0",
-    "zod": "^3.25.0"
-  },
+  "dependencies": {},
   "engines": {
     "node": ">=20"
   }

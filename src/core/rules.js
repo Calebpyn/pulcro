@@ -1,5 +1,5 @@
 // Reglas de qué se puede limpiar y cómo. Todo ID que llega a clean() se valida
-// contra estas reglas otra vez, sin importar si viene de la UI o de Claude.
+// contra estas reglas otra vez, sin importar de dónde venga (ventana principal o barra de menús).
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

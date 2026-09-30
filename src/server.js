@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Servidor local de Pulcro (solo escucha en 127.0.0.1). Sirve la interfaz, la API
-// y el canal en vivo con lo que Claude hace vía MCP.
+// y los eventos en vivo del historial.
 import http from 'node:http';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
