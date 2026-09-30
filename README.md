@@ -1,5 +1,7 @@
 # Pulcro
 
+[![Licencia: AGPL-3.0](https://img.shields.io/badge/licencia-AGPL--3.0-blue.svg)](LICENSE)
+
 Limpiador y monitor de salud para macOS, con estilo CleanMyMac y un canal MCP para que **Claude** revise y limpie tu Mac contigo.
 
 <p align="center">
@@ -117,3 +119,15 @@ Para agregar carpetas de proyectos, crea `~/Library/Application Support/Pulcro/c
 ```json
 { "projectRoots": ["~/Code", "~/Work"] }
 ```
+
+## Licencia
+
+Pulcro es software libre bajo la licencia [GNU AGPL-3.0](LICENSE). En palabras simples:
+
+- Puedes usarlo gratis en todas tus Macs.
+- Puedes modificarlo y compartirlo.
+- Si distribuyes una versión modificada, **o la ofreces como servicio a otros por internet**, tienes que publicar tu código bajo la misma licencia.
+
+Lo último es a propósito: evita que alguien tome Pulcro, lo cierre y lo venda como otro limpiador de suscripción.
+
+Copyright © 2026 Alonso Payán y colaboradores.
