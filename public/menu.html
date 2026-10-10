@@ -108,7 +108,7 @@
     .app .bar { grid-column: 1 / -1; height: 3px; }
 
     /* footer */
-    .actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .act { font: inherit; font-size: 11.5px; font-weight: 600; color: #fff; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 9px 4px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .act:hover { background: var(--card-hover); }
     .act svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
@@ -183,6 +183,7 @@
 
     <div class="actions">
       <button class="act" id="scan"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Escanear</span></button>
+      <button class="act" id="organize"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8"/></svg><span id="organize-label">Ordenar</span></button>
       <button class="act" id="trash"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span>Vaciar Papelera</span></button>
     </div>
     <div class="foot"><span id="updated">—</span><button id="quit">Salir de Pulcro</button></div>

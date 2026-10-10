@@ -128,8 +128,13 @@ function reportHeight() {
   native({ type: 'resize', height: Math.ceil(document.getElementById('wrap').getBoundingClientRect().height) });
 }
 
+async function loadOrganize() {
+  const p = await api('/api/organize/plan');
+  $('organize-label').textContent = p.items.length ? `Ordenar (${p.items.length})` : 'Ordenar';
+}
+
 async function refreshAll() {
-  await Promise.allSettled([loadHealth(), loadScan(), loadLive()]);
+  await Promise.allSettled([loadHealth(), loadScan(), loadLive(), loadOrganize()]);
   reportHeight();
 }
 
@@ -177,6 +182,7 @@ $('scan').addEventListener('click', async () => {
 });
 
 $('open-app').addEventListener('click', () => native({ type: 'open', view: 'overview' }));
+$('organize').addEventListener('click', () => native({ type: 'open', view: 'organize' }));
 $('quit').addEventListener('click', () => native({ type: 'quit' }));
 
 // En un navegador normal (sin app nativa) el panel se actualiza solo.

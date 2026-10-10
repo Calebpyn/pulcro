@@ -16,6 +16,7 @@
       <button data-view="overview" class="active"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0zm9-5v5l3 2"/></svg>Resumen</button>
       <button data-view="clean"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 20l1.5-7h7L17 20M9.5 13 12 4l2.5 9"/></svg>Limpieza<span class="badge" id="nav-clean-badge" hidden></span></button>
       <button data-view="space"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/></svg>Espacio</button>
+      <button data-view="organize"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16h5"/></svg>Organizar<span class="badge" id="nav-org-badge" hidden></span></button>
       <button data-view="history"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4M12 8v4l3 2"/></svg>Historial</button>
     </nav>
     <div class="sidebar-foot">
@@ -70,6 +71,22 @@
         <button class="btn" id="btn-empty-trash">Vaciar Papelera</button>
       </header>
       <div class="space-grid" id="space-grid"></div>
+    </section>
+
+    <!-- ORGANIZAR -->
+    <section class="view" id="view-organize">
+      <header class="view-head">
+        <div><h1>Organizar</h1><p class="muted" id="org-sub">Acomoda Descargas y las capturas del Escritorio en carpetas por tipo.</p></div>
+        <div class="head-actions"><button class="btn" id="btn-org-all">Seleccionar todo</button><button class="btn primary" id="btn-org-plan">Analizar</button></div>
+      </header>
+      <div id="org-list" class="clean-list"></div>
+      <h2 class="section-title">Órdenes recientes</h2>
+      <p class="muted org-note">Cada orden se puede deshacer: los archivos regresan a donde estaban.</p>
+      <div id="org-runs" class="history"></div>
+      <div class="actionbar" id="org-bar" hidden>
+        <span id="org-sel"></span>
+        <div><button class="btn ghost" id="btn-org-none">Quitar selección</button><button class="btn primary" id="btn-org-apply">Ordenar</button></div>
+      </div>
     </section>
 
     <!-- HISTORIAL -->

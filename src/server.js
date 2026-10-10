@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getHealth } from './core/health.js';
 import { getLive } from './core/live.js';
+import { planOrganize, applyOrganize, listOrganizeRuns, undoOrganize } from './core/organize.js';
 import { runScan, lastScan } from './core/scan.js';
 import { cleanItems, emptyTrash } from './core/clean.js';
 import { readHistory, logEvent, HISTORY_FILE } from './core/history.js';
@@ -80,6 +81,18 @@ async function route(req, res) {
     return send(res, 200, await cleanItems(ids.map(String), { actor: 'usuario', dryRun: !!dryRun }));
   }
   if (p === '/api/empty-trash' && req.method === 'POST') return send(res, 200, await emptyTrash({ actor: 'usuario' }));
+  if (p === '/api/organize/plan' && req.method === 'GET') return send(res, 200, await planOrganize());
+  if (p === '/api/organize/runs' && req.method === 'GET') return send(res, 200, await listOrganizeRuns());
+  if (p === '/api/organize/apply' && req.method === 'POST') {
+    const { ids } = await readBody(req);
+    if (!Array.isArray(ids) || !ids.length) return send(res, 400, { error: 'No hay archivos seleccionados' });
+    return send(res, 200, await applyOrganize(ids.map(String), { actor: 'usuario' }));
+  }
+  if (p === '/api/organize/undo' && req.method === 'POST') {
+    const { id } = await readBody(req);
+    try { return send(res, 200, await undoOrganize(String(id), { actor: 'usuario' })); }
+    catch (err) { return send(res, 400, { error: err.message }); }
+  }
   if (p === '/api/reveal' && req.method === 'POST') {
     const { path: target } = await readBody(req);
     const ok = typeof target === 'string' && path.isAbsolute(target) && (target.startsWith(HOME + '/') || target.startsWith('/Applications/')) && fs.existsSync(target);

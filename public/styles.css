@@ -205,3 +205,10 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   .overview-grid { grid-template-columns: 1fr; }
   .actionbar { left: calc(64px + 16px); right: 16px; }
 }
+
+/* ---------- organizar ---------- */
+.org-note { margin: -6px 0 12px; font-size: 13px; }
+.cat-head .dest { font-size: 12px; color: var(--muted); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.tag.reason { background: var(--surface-2); color: var(--muted); font-weight: 500; }
+.run-status { font-size: 12px; color: var(--muted); }
+.toast .toast-action { margin-top: 6px; font: inherit; font-size: 12px; font-weight: 700; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; }

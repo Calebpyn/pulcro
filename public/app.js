@@ -24,12 +24,19 @@ async function api(path, { method = 'GET', body } = {}) {
   return data;
 }
 
-function toast(title, text = '', kind = '') {
+function toast(title, text = '', kind = '', action = null) {
   const el = document.createElement('div');
   el.className = `toast ${kind}`;
   el.innerHTML = `<strong>${esc(title)}</strong>${text ? `<span>${esc(text)}</span>` : ''}`;
+  if (action) {
+    const b = document.createElement('button');
+    b.className = 'toast-action';
+    b.textContent = action.label;
+    b.onclick = () => { el.remove(); action.run(); };
+    el.append(document.createElement('br'), b);
+  }
   $('#toasts').append(el);
-  setTimeout(() => el.remove(), 6000);
+  setTimeout(() => el.remove(), action ? 12000 : 6000);
 }
 
 function confirmModal({ title, html, ok = 'Confirmar', danger = true }) {
@@ -59,6 +66,7 @@ function show(view) {
   $$('nav button').forEach((b) => b.classList.toggle('active', b.dataset.view === view));
   $$('.view').forEach((v) => v.classList.toggle('active', v.id === `view-${view}`));
   if (view === 'history') loadHistory();
+  if (view === 'organize') { loadOrganize(); loadRuns(); }
 }
 $$('nav button').forEach((b) => b.addEventListener('click', () => show(b.dataset.view)));
 window.pulcroShow = show; // la app nativa la usa para abrir una sección desde la barra de menús
@@ -294,6 +302,148 @@ $('#btn-empty-trash').addEventListener('click', async () => {
   finally { btn.disabled = false; btn.textContent = 'Vaciar Papelera'; }
 });
 
+// ---------- organizar ----------
+const org = { plan: null, selected: new Set(), open: new Set(), loading: false };
+
+async function loadOrganize() {
+  if (org.loading) return;
+  org.loading = true;
+  const btn = $('#btn-org-plan');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Analizando…';
+  try {
+    org.plan = await api('/api/organize/plan');
+    org.selected = new Set(org.plan.items.map((i) => i.id));
+    renderOrganize();
+  } catch (e) {
+    toast('No se pudo analizar', e.message, 'error');
+  } finally {
+    org.loading = false;
+    btn.disabled = false; btn.textContent = 'Analizar';
+  }
+}
+
+function renderOrganize() {
+  const p = org.plan;
+  const list = $('#org-list');
+  const badge = $('#nav-org-badge');
+  badge.hidden = !p?.items.length;
+  badge.textContent = p?.items.length ?? '';
+  if (!p) return;
+  $('#org-sub').textContent = p.items.length
+    ? `${items_(p.items.length)} por acomodar en ${p.sources.join(' y ')}`
+    : `${p.sources.join(' y ')} ya están en orden.`;
+  if (!p.items.length) {
+    list.innerHTML = '<div class="empty card"><h3>Todo en su lugar ✨</h3><p>No hay archivos sueltos que acomodar. Las carpetas y los proyectos de código nunca se mueven.</p></div>';
+    updateOrgSelection();
+    return;
+  }
+  list.innerHTML = p.groups.map((g) => {
+    const items = p.items.filter((i) => i.group === g.name);
+    const all = items.every((i) => org.selected.has(i.id));
+    return `<div class="card cat ${org.open.has(g.name) ? 'open' : ''}" data-group="${esc(g.name)}">
+      <div class="cat-head">
+        <input type="checkbox" class="cat-check" ${all ? 'checked' : ''} aria-label="Seleccionar grupo" />
+        ${ICON.chev}
+        <div class="titles"><h3>${esc(g.name)} <span class="muted">· ${g.count}</span></h3><p class="dest">→ ${esc(g.to)}</p></div>
+        <span class="cat-size">${g.bytes ? fb(g.bytes) : ''}</span>
+      </div>
+      <div class="cat-items">${items.map((i) => `<label class="row" data-id="${esc(i.id)}">
+        <input type="checkbox" class="item-check" ${org.selected.has(i.id) ? 'checked' : ''} />
+        <div style="min-width:0"><div class="name">${esc(i.name)}</div><div class="sub">${esc(i.from)}</div></div>
+        <span class="tag ${i.action === 'trash' ? 'review' : 'reason'}">${esc(i.reason)}</span>
+        <span class="size">${i.bytes != null ? fb(i.bytes) : 'carpeta'}</span>
+        <button class="icon-btn reveal" title="Mostrar en Finder" data-path="${esc(i.path)}">${ICON.reveal}</button>
+      </label>`).join('')}</div>
+    </div>`;
+  }).join('');
+  updateOrgSelection();
+}
+
+function updateOrgSelection() {
+  const items = (org.plan?.items ?? []).filter((i) => org.selected.has(i.id));
+  $('#org-bar').hidden = items.length === 0 || !$('#view-organize').classList.contains('active');
+  const trash = items.filter((i) => i.action === 'trash').length;
+  $('#org-sel').innerHTML = `<strong>${items_(items.length)}</strong> seleccionado${items.length === 1 ? '' : 's'}${trash ? ` · ${trash} a la Papelera` : ''}`;
+}
+
+$('#org-list').addEventListener('click', (e) => {
+  const reveal = e.target.closest('.reveal');
+  if (reveal) { e.preventDefault(); api('/api/reveal', { method: 'POST', body: { path: reveal.dataset.path } }).catch((err) => toast('No se pudo abrir', err.message, 'error')); return; }
+  const head = e.target.closest('.cat-head');
+  if (head && !e.target.classList.contains('cat-check')) {
+    const card = head.parentElement;
+    card.classList.toggle('open');
+    org.open[card.classList.contains('open') ? 'add' : 'delete'](card.dataset.group);
+  }
+});
+$('#org-list').addEventListener('change', (e) => {
+  const card = e.target.closest('.cat');
+  if (e.target.classList.contains('item-check')) {
+    const id = e.target.closest('.row').dataset.id;
+    e.target.checked ? org.selected.add(id) : org.selected.delete(id);
+    $('.cat-check', card).checked = $$('.item-check', card).every((c) => c.checked);
+  } else if (e.target.classList.contains('cat-check')) {
+    $$('.row', card).forEach((r) => { $('.item-check', r).checked = e.target.checked; e.target.checked ? org.selected.add(r.dataset.id) : org.selected.delete(r.dataset.id); });
+  }
+  updateOrgSelection();
+});
+$('#btn-org-plan').addEventListener('click', loadOrganize);
+$('#btn-org-all').addEventListener('click', () => { org.selected = new Set((org.plan?.items ?? []).map((i) => i.id)); renderOrganize(); });
+$('#btn-org-none').addEventListener('click', () => { org.selected.clear(); renderOrganize(); });
+
+$('#btn-org-apply').addEventListener('click', async () => {
+  const items = org.plan.items.filter((i) => org.selected.has(i.id));
+  if (!items.length) return;
+  const byGroup = {};
+  for (const i of items) byGroup[i.group] = (byGroup[i.group] ?? 0) + 1;
+  const ok = await confirmModal({
+    title: `Ordenar ${items_(items.length)}`,
+    html: `<ul>${Object.entries(byGroup).map(([g, n]) => `<li><strong>${esc(g)}</strong>: ${n}</li>`).join('')}</ul>
+           <p class="note">Puedes deshacerlo después desde “Órdenes recientes”.</p>`,
+    ok: 'Ordenar', danger: false,
+  });
+  if (!ok) return;
+  const btn = $('#btn-org-apply');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Ordenando…';
+  try {
+    const r = await api('/api/organize/apply', { method: 'POST', body: { ids: items.map((i) => i.id) } });
+    toast(`Listo: ${items_(r.moved)} acomodado${r.moved === 1 ? '' : 's'}`,
+      `${r.trashed ? `${r.trashed} a la Papelera` : ''}${r.failed.length ? ` · ${r.failed.length} con error` : ''}`,
+      r.failed.length ? 'error' : '',
+      r.manifestId ? { label: 'Deshacer', run: () => undoRun(r.manifestId, true) } : null);
+    await Promise.all([loadOrganize(), loadRuns()]);
+  } catch (e) {
+    toast('No se pudo ordenar', e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ordenar';
+  }
+});
+
+async function loadRuns() {
+  const runs = await api('/api/organize/runs').catch(() => []);
+  const el = $('#org-runs');
+  if (!runs.length) { el.innerHTML = '<div class="empty card"><p>Todavía no has ordenado nada.</p></div>'; return; }
+  el.innerHTML = runs.map((r) => {
+    const when = new Date(r.at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+    const what = `${items_(r.moved)} acomodado${r.moved === 1 ? '' : 's'}${r.trashed ? ` · ${r.trashed} a la Papelera` : ''}`;
+    const action = r.undoneAt ? '<span class="run-status">Deshecho</span>' : `<button class="btn small" data-undo="${esc(r.id)}">Deshacer</button>`;
+    return `<div class="card event"><div class="what"><strong>${esc(what)}</strong><p>${esc(when)}</p></div>${action}</div>`;
+  }).join('');
+}
+$('#org-runs').addEventListener('click', (e) => { const b = e.target.closest('[data-undo]'); if (b) undoRun(b.dataset.undo); });
+
+async function undoRun(id, skipConfirm = false) {
+  if (!skipConfirm) {
+    const ok = await confirmModal({ title: 'Deshacer este orden', html: '<p class="note">Los archivos regresan a donde estaban. Los que ya moviste o borraste después se quedan como están.</p>', ok: 'Deshacer', danger: false });
+    if (!ok) return;
+  }
+  try {
+    const r = await api('/api/organize/undo', { method: 'POST', body: { id } });
+    toast('Orden deshecho', `${items_(r.restored)} regresaron a su lugar${r.skipped.length ? ` · ${r.skipped.length} se quedaron` : ''}`);
+    await Promise.all([loadOrganize(), loadRuns()]);
+  } catch (e) { toast('No se pudo deshacer', e.message, 'error'); }
+}
+
 // ---------- historial ----------
 async function loadHistory() {
   const h = await api('/api/history').catch(() => []);
@@ -308,6 +458,8 @@ async function loadHistory() {
       amount = fb(e.freedBytes || e.estimatedBytes);
     } else if (e.type === 'empty-trash') { what = 'Vació la Papelera'; amount = fb(e.freedBytes); }
     else if (e.type === 'scan') { what = 'Escaneó la Mac'; detail = `${fb(e.safeBytes)} recuperables sin riesgo`; }
+    else if (e.type === 'organize') { what = `Ordenó ${items_(e.moved + e.trashed)}`; detail = `${e.moved} acomodados${e.trashed ? ` · ${e.trashed} a la Papelera` : ''}`; }
+    else if (e.type === 'organize-undo') { what = 'Deshizo un orden'; detail = `${items_(e.restored)} regresaron a su lugar`; }
     return `<div class="card event"><div class="what"><strong>${esc(what)}</strong><p>${esc(when)}${detail ? ' · ' + esc(detail) : ''}</p></div><span class="amount">${amount}</span></div>`;
   }).join('');
 }
@@ -332,6 +484,7 @@ function connectEvents() {
 (async () => {
   connectEvents();
   loadHealth();
+  api('/api/organize/plan').then((p) => { org.plan = p; org.selected = new Set(p.items.map((i) => i.id)); renderOrganize(); }).catch(() => {});
   const last = await api('/api/scan/last').catch(() => null);
   if (last?.items) { state.scan = last; renderScan(); renderSpace(); renderRecoverable(); }
   else { renderScan(); renderSpace(); }

@@ -20,8 +20,14 @@ Limpiador y monitor de salud para macOS, con estilo CleanMyMac. Libera espacio s
   - versiones viejas de extensiones de VS Code y Cursor
   - instaladores olvidados (`.dmg`, `.pkg`, `.iso`) y archivos de más de 1 GB
 - **Espacio**: qué apps y carpetas pesan más. Desde aquí también vacías la Papelera.
-- **Barra de menús**: panel con disco, memoria, CPU y batería en vivo, las apps que más memoria consumen y un botón para limpiar.
-- **Historial**: cada escaneo y limpieza que has hecho, con el espacio liberado.
+- **Organizar**: acomoda los archivos sueltos de Descargas, y las capturas del Escritorio, en carpetas por tipo:
+  - Documentos, Hojas de cálculo, Presentaciones, Comprimidos y Fuentes, en `~/Documents`
+  - Imágenes, Arte IA y Capturas de pantalla, en `~/Pictures`
+  - Audio en `~/Music` y Videos en `~/Movies`
+
+  Manda a la Papelera los duplicados exactos, los restos de Windows y las descargas incompletas. Nunca mueve carpetas de proyectos, credenciales ni archivos de los últimos 10 minutos. **Cada orden se puede deshacer.**
+- **Barra de menús**: panel con disco, memoria, CPU y batería en vivo, las apps que más memoria consumen y botones para limpiar y ordenar.
+- **Historial**: cada escaneo, limpieza y orden que has hecho.
 
 ## Instalación
 
@@ -88,11 +94,26 @@ scripts/      compilación de la app y del DMG
 future/       funciones en pausa (integración con Claude)
 ```
 
-Para agregar carpetas de proyectos, crea `~/Library/Application Support/Pulcro/config.json`:
+### Configuración
+
+Todo va en `~/Library/Application Support/Pulcro/config.json`:
 
 ```json
-{ "projectRoots": ["~/Code", "~/Work"] }
+{
+  "projectRoots": ["~/Code", "~/Work"],
+  "organizeRules": [
+    { "match": "Factura|Invoice", "to": "~/Documents/Facturas", "label": "Facturas" },
+    { "match": "CV|Resume", "to": "~/Documents/Carrera", "label": "Carrera" },
+    { "match": "^Fotos viaje", "to": "~/Pictures/Viajes", "label": "Viajes", "folders": true }
+  ]
+}
 ```
+
+- `projectRoots`: carpetas extra donde buscar `node_modules`, `.next`, `target`…
+- `organizeRules`: reglas personales de **Organizar**, que se revisan antes que las categorías por tipo.
+  - `match` es una expresión regular sobre el nombre del archivo, sin distinguir mayúsculas.
+  - `to` es el destino dentro de tu carpeta de usuario.
+  - `"folders": true` permite que la regla también mueva carpetas. Las carpetas de código nunca se mueven.
 
 ## Licencia
 
